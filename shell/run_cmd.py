@@ -11,7 +11,7 @@ from .util import str_to_pipe, check_attrs
 
 
 class RunCmd():
-    def __init__(self, cmd_str, input_pipe=None):
+    def __init__(self, cmd_str, input_pipe=None, through_shell = True):
         self.cmd_str = cmd_str
         self.cmd_p = None
         if input_pipe:
@@ -19,6 +19,7 @@ class RunCmd():
         else:
             self.input_pipe = None
         self.std = {'out': None, 'err': None}
+        self.through_shell = through_shell
 
     def get_cmd_lst(self):
         # handle '~'
@@ -28,9 +29,12 @@ class RunCmd():
 
     def init_popen(self):
         if self.cmd_p is None:
+            args = self.cmd_str if self.through_shell else self.get_cmd_lst()
+            shell = self.through_shell
             self.cmd_p = Popen(
-                self.get_cmd_lst(),
-                stdin=self.input_pipe, stdout=PIPE, stderr=PIPE)
+                args,
+                stdin=self.input_pipe, stdout=PIPE, stderr=PIPE, 
+                shell=shell)
         return self
 
     def get_popen(self):
